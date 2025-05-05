@@ -32,6 +32,7 @@ fn main() {
 
     let (mut last_touch_x, mut last_touch_y) = (0, 0);
     let (mut last_circle_x, mut last_circle_y) = (0, 0);
+    let mut last_vol = 0.0;
 
     while apt.main_loop() {
         gfx.wait_for_vblank();
@@ -42,6 +43,16 @@ fn main() {
         }
 
         let mut packets = vec![];
+
+        // Volume slider
+        let vol = hid.volume_slider();
+        if vol != last_vol {
+            last_vol = vol;
+            packets.push(OscPacket::Message(OscMessage {
+                addr: String::from("/3ds/vol"),
+                args: vec![OscType::Float(vol)],
+            }));
+        }
 
         // Touch
         let (touch_x, touch_y) = hid.touch_position();
